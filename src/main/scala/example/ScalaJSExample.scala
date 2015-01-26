@@ -1,43 +1,75 @@
 package example
-import scala.scalajs.js.annotation.JSExport
+
 import org.scalajs.dom
 import scala.util.Random
-
-case class Point(x: Int, y: Int){
+import scala.scalajs.js
+import js.annotation.JSExport
+case class Point(x: Double, y: Double) {
   def +(p: Point) = Point(x + p.x, y + p.y)
-  def /(d: Int) = Point(x / d, y / d)
+  def -(p: Point) = Point(x - p.x, y - p.y)
+  def *(d: Double) = Point(x * d, y * d)
+  def /(d: Double) = Point(x / d, y / d)
+  def length = Math.sqrt(x * x + y * y)
 }
 
+class Wave(var pos: Point, var time: Int)
 @JSExport
 object ScalaJSExample {
+
+  var startTime = js.Date.now()
+
+  val canvas = dom.document
+    .getElementById("canvas")
+    .asInstanceOf[dom.HTMLCanvasElement]
+  val ctx = canvas.getContext("2d")
+    .asInstanceOf[dom.CanvasRenderingContext2D]
+
+  var waves = Seq.empty[Wave]
+  val vel = 1
+
+  def run() = {
+
+    canvas.height = dom.innerHeight
+    canvas.width = dom.innerWidth
+
+    // doing
+
+    waves = waves.filter(w =>
+      {
+        val dist = w.time * vel
+        dist < canvas.width || dist < canvas.height
+      })
+
+    for (wave <- waves) {
+      wave.time = wave.time + 1
+    }
+
+  }
+
+  def draw() = {
+    // drawing
+    ctx.fillStyle = "black"
+
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    ctx.fillStyle = "red"
+    for (wave <- waves) {
+      val dist = vel * wave.time
+      println(wave.time)
+      ctx.fillRect(wave.pos.x - 10, wave.pos.y - 10, dist, dist)
+    }
+
+  }
   @JSExport
-  def main(canvas: dom.HTMLCanvasElement): Unit = {
-    val ctx = canvas.getContext("2d")
-                    .asInstanceOf[dom.CanvasRenderingContext2D]
+  def main(): Unit = {
+    dom.console.log("main")
 
-    var count = 0
-    var p = Point(0, 0)
-    val corners = Seq(Point(255, 255), Point(0, 255), Point(128, 0))
-
-    def clear() = {
-      ctx.fillStyle = "black"
-      ctx.fillRect(0, 0, 255, 255)
+    dom.document.onclick = { (e: dom.MouseEvent) =>
+      println("clicked...")
+      waves ++= Seq(new Wave(
+        Point(e.clientX.toInt, e.clientY.toInt), 0))
+      (): js.Any
     }
-
-    def run = for (i <- 0 until 10){
-      if (count % 3000 == 0) clear()
-      count += 1
-      p = (p + corners(Random.nextInt(3))) / 2
-
-      val height = 512.0 / (255 + p.y)
-      val r = (p.x * height).toInt
-      val g = ((255-p.x) * height).toInt
-      val b = p.y
-      ctx.fillStyle = s"rgb($g, $r, $b)"
-
-      ctx.fillRect(p.x, p.y, 1, 1)
-    }
-
-    dom.setInterval(() => run, 50)
+    dom.setInterval(() => { run(); draw() }, 20)
   }
 }
