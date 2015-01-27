@@ -12,7 +12,27 @@ case class Point(x: Double, y: Double) {
   def length = Math.sqrt(x * x + y * y)
 }
 
-class Wave(var pos: Point, var time: Int)
+class Wave(var pos: Point, var time: Int) {
+  def wavefront(speed: Int): Seq[Point] = {
+    val edge = 5
+    val dist = speed * time
+
+    def inWavefront(p: Point): Boolean = {
+      val d = p.length
+      d < dist && d > (dist - edge)
+    }
+
+    val front = for {
+      x <- -dist until dist
+      y <- -dist until dist
+      p = Point(x, y)
+      if inWavefront(p)
+    } yield p + pos
+
+    front
+  }
+}
+
 @JSExport
 object ScalaJSExample {
 
@@ -25,7 +45,7 @@ object ScalaJSExample {
     .asInstanceOf[dom.CanvasRenderingContext2D]
 
   var waves = Seq.empty[Wave]
-  val vel = 1
+  val speed = 1
 
   def run() = {
 
@@ -36,8 +56,8 @@ object ScalaJSExample {
 
     waves = waves.filter(w =>
       {
-        val dist = w.time * vel
-        dist < canvas.width || dist < canvas.height
+        val dist = w.time * speed
+        dist * 8 < canvas.width || dist * 5 < canvas.height
       })
 
     for (wave <- waves) {
@@ -52,11 +72,14 @@ object ScalaJSExample {
 
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    ctx.fillStyle = "red"
-    for (wave <- waves) {
-      val dist = vel * wave.time
-      println(wave.time)
-      ctx.fillRect(wave.pos.x - 10, wave.pos.y - 10, dist, dist)
+    val frontPoints = for {
+      wave <- waves
+      p <- wave.wavefront(speed)
+    } yield p
+
+    ctx.fillStyle = "blue"
+    for (p <- frontPoints) {
+      ctx.fillRect(p.x - 10, p.y - 10, 1, 1)
     }
 
   }
@@ -65,7 +88,6 @@ object ScalaJSExample {
     dom.console.log("main")
 
     dom.document.onclick = { (e: dom.MouseEvent) =>
-      println("clicked...")
       waves ++= Seq(new Wave(
         Point(e.clientX.toInt, e.clientY.toInt), 0))
       (): js.Any
