@@ -3,9 +3,7 @@ lazy val root = (project in file(".")).enablePlugins(ScalaJSPlugin)
 
 workbenchSettings
 
-name := "Example"
-
-version := "0.1-SNAPSHOT"
+name := "Soap bubbles"
 
 scalaVersion := "2.11.7"
 
@@ -17,4 +15,3 @@ updateBrowsers <<= updateBrowsers.triggeredBy(fastOptJS in Compile)
 
 // Workbench has to know how to restart your application.
 bootSnippet := "example.ScalaJSExample().doDynContent();"
-
