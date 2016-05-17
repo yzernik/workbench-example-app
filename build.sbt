@@ -5,9 +5,9 @@ workbenchSettings
 
 name := "Soap bubbles"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
-libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.8.1")
+libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.9.0")
 
 bootSnippet := "ScalaJSExample().main(document.getElementById('canvas'));"
 
