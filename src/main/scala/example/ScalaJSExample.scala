@@ -1,6 +1,7 @@
 package example
 
 import org.scalajs.dom._
+import org.scalajs.dom.html.Canvas
 
 import scala.collection.mutable
 import scala.scalajs.js.annotation.JSExport
@@ -14,7 +15,7 @@ case class Wave(pos: Point, var time: Int = 1)
 @JSExport
 object ScalaJSExample {
 
-  val canvas = document.getElementById("canvas").asInstanceOf[html.Canvas]
+  val canvas = document.getElementById("canvas").asInstanceOf[Canvas]
   val (ctx, speed) = (canvas.getContext("2d"), 1)
   var waves = mutable.Buffer[Wave]()
 
@@ -32,7 +33,8 @@ object ScalaJSExample {
   }
 
   def run() {
-    (canvas.height, canvas.width) = (window.innerHeight, window.innerWidth)
+    canvas.height = window.innerHeight
+    canvas.width = window.innerWidth
 
     // doing
     waves = waves.filter(w => {
@@ -44,15 +46,14 @@ object ScalaJSExample {
 
   def draw() {
     // drawing
-    ctx.fillStyle = "black"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     ctx.strokeStyle = "magenta"
     ctx.lineWidth = 5
-    waves.foreach { w => {
+    waves.foreach { w =>
       ctx.beginPath()
       ctx.arc(w.pos.x, w.pos.y, speed * w.time, 0, 2 * math.Pi)
-    }
+
       ctx.stroke()
     }
   }
