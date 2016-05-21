@@ -1,7 +1,6 @@
 package example
 
-import org.scalajs.dom
-import org.scalajs.dom.html
+import org.scalajs.dom._
 
 import scala.collection.mutable
 import scala.scalajs.js.annotation.JSExport
@@ -15,25 +14,25 @@ case class Wave(pos: Point, var time: Int = 1)
 @JSExport
 object ScalaJSExample {
 
-  val canvas = dom.document.getElementById("canvas").asInstanceOf[html.Canvas]
+  val canvas = document.getElementById("canvas").asInstanceOf[html.Canvas]
   val (ctx, speed) = (canvas.getContext("2d"), 1)
   var waves = mutable.Buffer[Wave]()
 
   @JSExport
-  def doDynContent(): Unit = {
-    dom.console.log("doDynContent called")
+  def doDynContent() {
+    console.log("doDynContent called")
 
-    dom.document.onclick = { (e: dom.MouseEvent) =>
+    document.onclick = { (e: MouseEvent) =>
       waves.append(Wave(Point(e.clientX.toInt, e.clientY.toInt)))
     }
-    dom.setInterval(() => {
+    window.setInterval(() => {
       run()
       draw()
     }, 50)
   }
 
   def run() {
-    canvas.height = dom.innerHeight; canvas.width = dom.innerWidth
+    (canvas.height, canvas.width) = (window.innerHeight, window.innerWidth)
 
     // doing
     waves = waves.filter(w => {
@@ -43,7 +42,7 @@ object ScalaJSExample {
     })
   }
 
-  def draw() = {
+  def draw() {
     // drawing
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
