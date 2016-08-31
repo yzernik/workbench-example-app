@@ -1,60 +1,34 @@
 package example
 
+import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.html.Canvas
 
-import scala.collection.mutable.ListBuffer
+import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 
-class Point(val x: Double, val y: Double) {
-  def +(p: Point) = new Point(x + p.x, y + p.y)
-}
-
-class Wave(val pos: Point, var time: Int = 1)
-
 @JSExport
-object ScalaJSExample {
+object ScalaJSExample extends JSApp with Bubbles {
 
-  val canvas = document.getElementById("canvas").asInstanceOf[Canvas]
-  val (ctx, speed) = (canvas.getContext("2d"), 1)
-  var waves = ListBuffer.empty[Wave]
+  val canvas = document.getElementById("canvas main").asInstanceOf[Canvas]
+  val ctx = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
 
   @JSExport
-  def doDynContent() {
-    console.log("doDynContent called")
+  def main() {
+    console.log("Main started with", canvas.id)
 
-    document.onclick = { (e: MouseEvent) =>
-      waves :+= new Wave(new Point(e.clientX.toInt, e.clientY.toInt))
+    def run() = {
+      canvas.height = window.innerHeight.toInt
+      canvas.width = window.innerWidth.toInt
+
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      bubbles(canvas, ctx, "")
     }
-    window.setInterval(() => {
-      run()
-      draw()
-    }, 50)
+
+    // Initialize the canvas and refresh continuously.
+    run()
+    dom.window.setInterval(() => run(), 40)
   }
 
-  def run() {
-    canvas.height = window.innerHeight.toInt
-    canvas.width = window.innerWidth.toInt
-
-    // doing
-    waves = waves.filter(w => {
-      val dist = w.time * speed
-      w.time += 1
-      dist * 8 < canvas.width || dist * 5 < canvas.height
-    })
-  }
-
-  def draw() {
-    // drawing
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    ctx.strokeStyle = "magenta"
-    ctx.lineWidth = 5
-    waves.foreach { w =>
-      ctx.beginPath()
-      ctx.arc(w.pos.x, w.pos.y, speed * w.time, 0, 2 * math.Pi)
-
-      ctx.stroke()
-    }
-  }
 }
