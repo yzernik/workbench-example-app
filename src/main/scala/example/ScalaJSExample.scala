@@ -3,28 +3,28 @@ package example
 import org.scalajs.dom._
 import org.scalajs.dom.html.Canvas
 
-import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.scalajs.js.annotation.JSExport
 
-case class Point(x: Double, y: Double) {
-  def +(p: Point) = Point(x + p.x, y + p.y)
+class Point(val x: Double, val y: Double) {
+  def +(p: Point) = new Point(x + p.x, y + p.y)
 }
 
-case class Wave(pos: Point, var time: Int = 1)
+class Wave(val pos: Point, var time: Int = 1)
 
 @JSExport
 object ScalaJSExample {
 
   val canvas = document.getElementById("canvas").asInstanceOf[Canvas]
   val (ctx, speed) = (canvas.getContext("2d"), 1)
-  var waves = mutable.Buffer[Wave]()
+  var waves = ListBuffer.empty[Wave]
 
   @JSExport
   def doDynContent() {
     console.log("doDynContent called")
 
     document.onclick = { (e: MouseEvent) =>
-      waves.append(Wave(Point(e.clientX.toInt, e.clientY.toInt)))
+      waves :+= new Wave(new Point(e.clientX.toInt, e.clientY.toInt))
     }
     window.setInterval(() => {
       run()
@@ -33,8 +33,8 @@ object ScalaJSExample {
   }
 
   def run() {
-    canvas.height = window.innerHeight
-    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight.toInt
+    canvas.width = window.innerWidth.toInt
 
     // doing
     waves = waves.filter(w => {
